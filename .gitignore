@@ -1,0 +1,9 @@
+# CSV original do Kaggle (58 MB)
+Covid Data.csv
+*.zip
+
+# Configuração local do Claude Code
+.claude/
+
+__pycache__/
+.DS_Store

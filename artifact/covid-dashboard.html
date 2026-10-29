@@ -1,0 +1,699 @@
+<meta name="dash-one-writer">
+<style>
+  .cv { display: flex; flex-direction: column; gap: var(--cds-gap-xl); font-family: var(--font-anthropic-sans); color: var(--color-fg); max-width: 1320px; margin-inline: auto; width: 100%; }
+  .cv-head { display: flex; flex-direction: column; gap: var(--cds-gap-sm); }
+  .cv-eyebrow { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); letter-spacing: .06em; text-transform: uppercase; }
+  .cv-title { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: calc(var(--cds-font-size-title) * 1.35); line-height: 1.1; margin: 0; text-wrap: balance; }
+  .cv-lede { font-size: var(--cds-font-size-heading); line-height: 1.45; margin: 0; max-width: 62ch; text-wrap: pretty; }
+  .cv .cv-lede b, .cv .cv-ins b { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .cv-src { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin: 0; }
+
+  .cv-filters { display: flex; flex-wrap: wrap; gap: var(--cds-gap-md) var(--cds-gap-lg); align-items: flex-end; padding: var(--cds-pad-md) var(--cds-pad-lg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); }
+  .cv-f { display: flex; flex-direction: column; gap: var(--cds-gap-xs); min-width: 0; }
+  .cv-f > span { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); letter-spacing: .03em; }
+  .cv-seg { display: inline-flex; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); overflow: hidden; }
+  .cv-seg button, .cv-chipbtn, .cv-reset, .cv-f select { font: inherit; font-size: var(--cds-font-size-body); color: var(--color-fg); background: var(--color-bg); border: 0; padding: 6px 12px; cursor: pointer; }
+  .cv-seg button + button { border-left: 1px solid var(--color-border-line); }
+  .cv-seg button[aria-pressed="true"] { background: var(--color-fg); color: var(--color-bg); }
+  .cv-seg button:hover:not([aria-pressed="true"]) { background: var(--color-panel); }
+  .cv-f select { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 5px 8px; }
+  .cv-age { display: flex; align-items: center; gap: var(--cds-gap-xs); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+  .cv-comorbs { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs); }
+  .cv-chipbtn { border: 1px solid var(--color-border-line); border-radius: 999px; padding: 4px 11px; font-size: var(--cds-font-size-caption); }
+  .cv-chipbtn[aria-pressed="true"] { background: var(--color-fg); color: var(--color-bg); border-color: var(--color-fg); }
+  .cv-f-wide { flex-basis: 100%; }
+  .cv-reset { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); margin-left: auto; }
+  .cv-reset:hover, .cv-chipbtn:hover:not([aria-pressed="true"]) { background: var(--color-bg); outline: 1px solid var(--color-fg-muted); }
+  .cv button:focus-visible, .cv select:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
+  .cv-active { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs); align-items: center; min-height: 26px; font-size: var(--cds-font-size-caption); }
+  .cv-active button { font: inherit; font-size: var(--cds-font-size-caption); border: 1px solid var(--color-border-line); background: var(--color-panel); color: var(--color-fg); border-radius: 999px; padding: 3px 10px; cursor: pointer; }
+  .cv-active-empty { color: var(--color-fg-muted); }
+
+  .cv-kpis { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--cds-gap-md); }
+  @media (max-width: 960px) { .cv-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (max-width: 520px) { .cv-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .cv-kpi { display: flex; flex-direction: column; gap: var(--cds-gap-xs); padding: var(--cds-pad-md) var(--cds-pad-lg); border-left: 2px solid var(--color-border-line); }
+  .cv-kpi.is-key { border-left-color: var(--cds-chart-status-critical); }
+  .cv-kpi > span { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+  .cv-kpi > b { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .cv-kpi > small { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+
+  .cv-insights { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: var(--cds-gap-md); }
+  .cv-ins { margin: 0; padding: var(--cds-pad-md) var(--cds-pad-lg); background: var(--color-panel); border-radius: var(--cds-radius); font-size: var(--cds-font-size-body); line-height: 1.5; }
+  .cv-ins strong { display: block; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-weight: 500; letter-spacing: .03em; margin-bottom: 4px; }
+
+  .cv-sec { display: flex; flex-direction: column; gap: var(--cds-gap-md); }
+  .cv-sec > h2 { margin: 0; font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); }
+  .cv-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr)); gap: var(--cds-gap-md); }
+  .cv-card { display: flex; flex-direction: column; gap: var(--cds-gap-sm); min-width: 0; background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); }
+  .cv-card h3 { margin: 0; font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); text-wrap: balance; }
+  .cv-card p { margin: 0; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); line-height: 1.45; }
+  .cv-legend { display: flex; flex-wrap: wrap; gap: var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+  .cv-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+  .cv-chart { position: relative; width: 100%; min-width: 0; }
+  .cv-chart svg { display: block; overflow: visible; }
+  .cv-chart text { font-family: var(--font-anthropic-sans); font-size: var(--cds-font-size-caption); fill: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
+  .cv-chart text.cv-strong { fill: var(--color-fg); font-weight: 500; }
+  .cv-chart .cv-hit { cursor: pointer; }
+  .cv-h260 { min-height: 260px; } .cv-h340 { min-height: 340px; } .cv-h300 { min-height: 300px; } .cv-h220 { min-height: 220px; } .cv-h360 { min-height: 360px; }
+  .cv-tip { position: absolute; z-index: 5; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); min-width: 150px; }
+  .cv-tip-h { color: var(--cds-text-secondary); margin-bottom: 2px; }
+  .cv-tip-r { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .cv-tip-r b { margin-left: auto; padding-left: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .cv-sw { width: 8px; height: 8px; border-radius: 2px; flex: none; }
+  .cv-fail { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: inherit; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+  .cv-fail::before { content: ""; width: .375rem; height: .375rem; border-radius: 50%; background: var(--color-bad); }
+  .cv-notes { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); line-height: 1.55; margin: 0; padding-left: 1.1em; max-width: 90ch; }
+  [data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+  @media (max-width: 560px) { .cv-reset { margin-left: 0; } }
+</style>
+
+<div class="cv">
+  <header class="cv-head" id="topo">
+    <span class="cv-eyebrow">Painel epidemiológico · México</span>
+    <h1 class="cv-title">COVID-19 no México: quem corre mais risco</h1>
+    <p class="cv-lede">Entre os <b data-draw="tk-n" data-source="pacientes">—</b> pacientes do recorte atual, <b data-draw="tk-letal" data-source="pacientes">—</b> morreram. Idade, sexo e doenças preexistentes explicam a maior parte dessa diferença de risco.</p>
+    <p class="cv-src">Fonte: Secretaria de Saúde do México, via Kaggle (COVID-19 Dataset, Meir Nizri, CC0). <span data-draw="tk-total" data-source="pacientes">—</span> pacientes; óbitos registrados de <span data-draw="tk-ini" data-source="pacientes">—</span> a <span data-draw="tk-fim" data-source="pacientes">—</span>.</p>
+  </header>
+
+  <section class="cv-filters" id="filtros" aria-label="Filtros">
+    <div class="cv-f">
+      <span>Resultado do teste</span>
+      <div class="cv-seg" role="group" aria-label="Resultado do teste">
+        <button type="button" data-param="resultado" data-value="pos">Positivo</button>
+        <button type="button" data-param="resultado" data-value="neg">Negativo ou inconclusivo</button>
+        <button type="button" data-param="resultado" data-value="all">Todos</button>
+      </div>
+    </div>
+    <div class="cv-f">
+      <span>Sexo</span>
+      <div class="cv-seg" role="group" aria-label="Sexo">
+        <button type="button" data-param="sexo" data-value="">Ambos</button>
+        <button type="button" data-param="sexo" data-value="F">Mulheres</button>
+        <button type="button" data-param="sexo" data-value="M">Homens</button>
+      </div>
+    </div>
+    <div class="cv-f">
+      <span>Atendimento</span>
+      <div class="cv-seg" role="group" aria-label="Tipo de atendimento">
+        <button type="button" data-param="atendimento" data-value="">Todos</button>
+        <button type="button" data-param="atendimento" data-value="A">Ambulatorial</button>
+        <button type="button" data-param="atendimento" data-value="H">Internado</button>
+      </div>
+    </div>
+    <div class="cv-f">
+      <span>Idade</span>
+      <div class="cv-age">
+        <select id="cv-idade-de" aria-label="Idade mínima">
+          <option value="0">0</option><option value="5">5</option><option value="10">10</option><option value="15">15</option><option value="20">20</option><option value="25">25</option><option value="30">30</option><option value="35">35</option><option value="40">40</option><option value="45">45</option><option value="50">50</option><option value="55">55</option><option value="60">60</option><option value="65">65</option><option value="70">70</option><option value="75">75</option><option value="80">80</option><option value="85">85</option><option value="90">90</option>
+        </select>
+        <span>até</span>
+        <select id="cv-idade-ate" aria-label="Idade máxima">
+          <option value="0">4</option><option value="5">9</option><option value="10">14</option><option value="15">19</option><option value="20">24</option><option value="25">29</option><option value="30">34</option><option value="35">39</option><option value="40">44</option><option value="45">49</option><option value="50">54</option><option value="55">59</option><option value="60">64</option><option value="65">69</option><option value="70">74</option><option value="75">79</option><option value="80">84</option><option value="85">89</option><option value="90">90+</option>
+        </select>
+        <span>anos</span>
+      </div>
+    </div>
+    <div class="cv-f">
+      <span>Unidade médica</span>
+      <select id="cv-unidade" aria-label="Unidade médica">
+        <option value="">Todas</option><option value="1">Unidade 1</option><option value="2">Unidade 2</option><option value="3">Unidade 3</option><option value="4">Unidade 4</option><option value="5">Unidade 5</option><option value="6">Unidade 6</option><option value="7">Unidade 7</option><option value="8">Unidade 8</option><option value="9">Unidade 9</option><option value="10">Unidade 10</option><option value="11">Unidade 11</option><option value="12">Unidade 12</option><option value="13">Unidade 13</option>
+      </select>
+    </div>
+    <div class="cv-f cv-f-wide">
+      <span>Possui a doença preexistente (todas as marcadas)</span>
+      <div class="cv-comorbs">
+        <button type="button" class="cv-chipbtn" data-comorb="diabetes">Diabetes</button>
+        <button type="button" class="cv-chipbtn" data-comorb="hipertensao">Hipertensão</button>
+        <button type="button" class="cv-chipbtn" data-comorb="obesidade">Obesidade</button>
+        <button type="button" class="cv-chipbtn" data-comorb="renal">Doença renal crônica</button>
+        <button type="button" class="cv-chipbtn" data-comorb="dpoc">DPOC</button>
+        <button type="button" class="cv-chipbtn" data-comorb="cardio">Cardiovascular</button>
+        <button type="button" class="cv-chipbtn" data-comorb="imunossup">Imunossupressão</button>
+        <button type="button" class="cv-chipbtn" data-comorb="asma">Asma</button>
+        <button type="button" class="cv-chipbtn" data-comorb="tabagismo">Tabagismo</button>
+        <button type="button" class="cv-chipbtn" data-comorb="outra">Outra doença</button>
+      </div>
+    </div>
+    <div class="cv-f cv-f-wide" style="flex-direction: row; align-items: center; gap: var(--cds-gap-md); flex-wrap: wrap;">
+      <div class="cv-active" data-draw="chips" aria-live="polite">—</div>
+      <button type="button" class="cv-reset" id="cv-reset">Limpar filtros</button>
+    </div>
+  </section>
+
+  <section class="cv-kpis" id="indicadores" aria-label="Indicadores">
+    <div class="cv-kpi"><span>Pacientes</span><b data-draw="kpi-n" data-source="pacientes">—</b><small>no recorte</small></div>
+    <div class="cv-kpi"><span>Óbitos</span><b data-draw="kpi-d" data-source="pacientes">—</b><small>com data de óbito registrada</small></div>
+    <div class="cv-kpi is-key"><span>Letalidade</span><b data-draw="kpi-letal" data-source="pacientes">—</b><small>óbitos ÷ pacientes</small></div>
+    <div class="cv-kpi"><span>Internados</span><b data-draw="kpi-hosp" data-source="pacientes">—</b><small>dos pacientes</small></div>
+    <div class="cv-kpi"><span>Em UTI</span><b data-draw="kpi-uti" data-source="pacientes">—</b><small>dos pacientes</small></div>
+    <div class="cv-kpi"><span>Intubados</span><b data-draw="kpi-int" data-source="pacientes">—</b><small>dos pacientes</small></div>
+  </section>
+
+  <section class="cv-insights" id="achados" aria-label="Principais achados">
+    <p class="cv-ins"><strong>Idade</strong>Com 60 anos ou mais, a letalidade foi de <b data-draw="ins-60" data-source="pacientes">—</b>, contra <b data-draw="ins-40" data-source="pacientes">—</b> abaixo dos 40: <b data-draw="ins-razao" data-source="pacientes">—</b> vezes maior.</p>
+    <p class="cv-ins"><strong>Doenças preexistentes</strong>Sem nenhuma, morreram <b data-draw="ins-c0" data-source="pacientes">—</b> dos pacientes. Com três ou mais, <b data-draw="ins-c3" data-source="pacientes">—</b>.</p>
+    <p class="cv-ins"><strong>Sexo</strong>Letalidade entre homens: <b data-draw="ins-m" data-source="pacientes">—</b>. Entre mulheres: <b data-draw="ins-f" data-source="pacientes">—</b>.</p>
+    <p class="cv-ins"><strong>Pneumonia</strong>Quem teve pneumonia morreu em <b data-draw="ins-pn1" data-source="pacientes">—</b> dos casos; sem pneumonia, em <b data-draw="ins-pn0" data-source="pacientes">—</b>.</p>
+  </section>
+
+  <section class="cv-sec" id="risco">
+    <h2>Quem corre mais risco</h2>
+    <div class="cv-grid">
+      <article class="cv-card" id="letalidade-idade">
+        <h3>Letalidade por faixa etária</h3>
+        <p>Percentual de pacientes que morreram em cada faixa. Clique numa barra para filtrar a faixa; clique de novo para limpar.</p>
+        <div class="cv-chart cv-h260 dash-skeleton" data-draw="chart-idade" data-source="pacientes"></div>
+      </article>
+      <article class="cv-card" id="piramide">
+        <h3>Pirâmide etária: pacientes e óbitos</h3>
+        <p>Barra clara: pacientes. Barra escura: óbitos na mesma faixa.</p>
+        <div class="cv-legend"><span><i data-draw="sw-f"></i>Mulheres</span><span><i data-draw="sw-m"></i>Homens</span></div>
+        <div class="cv-chart cv-h340 dash-skeleton" data-draw="chart-piramide" data-source="pacientes"></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="cv-sec" id="comorbidades">
+    <h2>Doenças preexistentes</h2>
+    <div class="cv-grid">
+      <article class="cv-card" id="comorb-letalidade">
+        <h3>Letalidade com e sem cada doença</h3>
+        <p>Ponto cinza: pacientes sem a doença. Ponto colorido: com a doença. Entre parênteses, quantos pacientes a têm. Clique numa linha para filtrar.</p>
+        <div class="cv-legend"><span><i data-draw="sw-sem"></i>Sem a doença</span><span><i data-draw="sw-com"></i>Com a doença</span></div>
+        <div class="cv-chart cv-h360 dash-skeleton" data-draw="chart-comorb" data-source="pacientes"></div>
+      </article>
+      <article class="cv-card" id="comorb-acumulo">
+        <h3>Letalidade pelo número de doenças preexistentes</h3>
+        <p>O risco cresce a cada doença somada, mesmo antes de considerar a idade.</p>
+        <div class="cv-chart cv-h260 dash-skeleton" data-draw="chart-ncom" data-source="pacientes"></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="cv-sec" id="evolucao">
+    <h2>Gravidade e evolução no tempo</h2>
+    <div class="cv-grid">
+      <article class="cv-card" id="gravidade">
+        <h3>Cascata de gravidade</h3>
+        <p>Quantos pacientes chegaram a cada estágio, como parte do total do recorte. UTI e intubação só se aplicam a internados.</p>
+        <div class="cv-chart cv-h220 dash-skeleton" data-draw="chart-gravidade" data-source="pacientes"></div>
+      </article>
+      <article class="cv-card" id="obitos-mes">
+        <h3>Óbitos por mês</h3>
+        <p>Pela data do óbito. A base não traz a data de entrada, então só os óbitos têm linha do tempo. Registros antes de março de 2020 (em cinza) são provável erro de cadastro.</p>
+        <div class="cv-chart cv-h260 dash-skeleton" data-draw="chart-mes" data-source="pacientes"></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="cv-sec" id="unidades">
+    <h2>Unidades médicas</h2>
+    <article class="cv-card" id="unidades-dispersao">
+      <h3>Volume de pacientes e letalidade por unidade</h3>
+      <p>Cada círculo é uma unidade do sistema de saúde; o tamanho acompanha o número de pacientes (eixo horizontal em escala logarítmica). Unidades que atendem casos mais graves aparecem mais acima. Clique num círculo para filtrar.</p>
+      <div class="cv-chart cv-h300 dash-skeleton" data-draw="chart-unidades" data-source="pacientes"></div>
+    </article>
+  </section>
+
+  <section class="cv-sec" id="metodologia">
+    <h2>Como ler os números</h2>
+    <ul class="cv-notes">
+      <li>Letalidade é a parcela de pacientes do recorte com data de óbito registrada. Não é a taxa de mortalidade da população.</li>
+      <li>Resultado positivo corresponde às classificações finais 1 a 3 (confirmado por teste, por associação ou por comitê). As demais são negativo ou inconclusivo.</li>
+      <li>Doença preexistente sem informação foi tratada como ausente. Intubação e UTI só são registradas para pacientes internados.</li>
+      <li>A idade foi agrupada em faixas de 5 anos (90+ agrupa as idades maiores) para que a base de mais de um milhão de registros caiba na página sem perder os cruzamentos.</li>
+    </ul>
+  </section>
+</div>
+
+<script>
+(() => {
+  const COM = [
+    ['diabetes', 'Diabetes'], ['dpoc', 'DPOC'], ['asma', 'Asma'], ['imunossup', 'Imunossupressão'],
+    ['hipertensao', 'Hipertensão'], ['outra', 'Outra doença'], ['cardio', 'Cardiovascular'],
+    ['obesidade', 'Obesidade'], ['renal', 'Doença renal crônica'], ['tabagismo', 'Tabagismo'],
+  ];
+  const MES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+  const loc = d3.formatLocale({ decimal: ',', thousands: '.', grouping: [3], currency: ['R$ ', ''] });
+  const fInt = loc.format(',d');
+  const f1 = loc.format('.1f');
+  const pct = (v) => (v == null || !isFinite(v) ? '—' : f1(v * 100) + '%');
+  const rate = (n, d) => (n > 0 ? d / n : null);
+  const popc = (m) => { let c = 0; while (m) { c += m & 1; m >>= 1; } return c; };
+
+  let src = null, rows = null, months = [], cache = new Map();
+  function getRows() {
+    const g = dash.data('pacientes');
+    if (g.status !== 'ok' || !g.data || !g.data.length) return null;
+    if (g.data !== src) {
+      src = g.data;
+      cache = new Map();
+      const ms = new Set();
+      rows = src.map((r) => {
+        const d = r.mes_obito ? String(r.mes_obito) : '';
+        if (d) ms.add(d);
+        return { s: r.sexo, a: +r.faixa, t: r.atendimento, r: r.resultado, u: +r.unidade, p: +r.pneumonia, i: +r.intubado, c: +r.uti, m: +r.comorb, d, n: +r.pacientes };
+      });
+      months = [...ms].sort();
+    }
+    return rows;
+  }
+
+  function params() {
+    const p = dash.params();
+    let de = p.idade_de == null ? 0 : +p.idade_de, ate = p.idade_ate == null ? 90 : +p.idade_ate;
+    if (de > ate) [de, ate] = [ate, de];
+    return {
+      resultado: p.resultado || 'all', sexo: p.sexo || null, atendimento: p.atendimento || null,
+      unidade: p.unidade == null || p.unidade === '' ? null : +p.unidade, de, ate,
+      comorb: Array.isArray(p.comorb) ? p.comorb.filter((k) => COM.some((c) => c[0] === k)) : [],
+    };
+  }
+
+  // Aggregates the filtered rows; `excl` drops one filter so a chart can show its own dimension in full.
+  function agg(excl) {
+    const R = getRows();
+    if (!R) return null;
+    const p = params();
+    const key = (excl || '') + JSON.stringify(p);
+    if (cache.has(key)) return cache.get(key);
+    const req = p.comorb.reduce((m, k) => m | (1 << COM.findIndex((c) => c[0] === k)), 0);
+    const nd = () => ({ n: 0, d: 0 });
+    const o = {
+      n: 0, d: 0, h: 0, uti: 0, int: 0, pn: 0,
+      mes: new Map(), a5: new Map(), a10: Array.from({ length: 10 }, nd),
+      com: COM.map(() => ({ c: nd(), s: nd() })), nc: Array.from({ length: 4 }, nd),
+      un: new Map(), sex: { F: nd(), M: nd() }, lt40: nd(), ge60: nd(), pnY: nd(), pnN: nd(),
+    };
+    for (const r of R) {
+      if (p.resultado !== 'all' && r.r !== p.resultado) continue;
+      if (excl !== 'sexo' && p.sexo && r.s !== p.sexo) continue;
+      if (p.atendimento && r.t !== p.atendimento) continue;
+      if (excl !== 'unidade' && p.unidade != null && r.u !== p.unidade) continue;
+      if (excl !== 'idade' && (r.a < p.de || r.a > p.ate)) continue;
+      if (excl !== 'comorb' && (r.m & req) !== req) continue;
+      const n = r.n, d = r.d ? n : 0;
+      o.n += n; o.d += d;
+      if (r.t === 'H') o.h += n;
+      o.uti += r.c * n; o.int += r.i * n; o.pn += r.p * n;
+      if (d) o.mes.set(r.d, (o.mes.get(r.d) || 0) + d);
+      let a = o.a5.get(r.a); if (!a) o.a5.set(r.a, (a = { F: nd(), M: nd() }));
+      a[r.s].n += n; a[r.s].d += d;
+      const a10 = o.a10[Math.min(9, Math.floor(r.a / 10))]; a10.n += n; a10.d += d;
+      for (let k = 0; k < COM.length; k++) { const b = (r.m >> k) & 1 ? o.com[k].c : o.com[k].s; b.n += n; b.d += d; }
+      const nc = o.nc[Math.min(3, popc(r.m))]; nc.n += n; nc.d += d;
+      let u = o.un.get(r.u); if (!u) o.un.set(r.u, (u = nd())); u.n += n; u.d += d;
+      o.sex[r.s].n += n; o.sex[r.s].d += d;
+      if (r.a < 40) { o.lt40.n += n; o.lt40.d += d; }
+      if (r.a >= 60) { o.ge60.n += n; o.ge60.d += d; }
+      const pp = r.p ? o.pnY : o.pnN; pp.n += n; pp.d += d;
+    }
+    cache.set(key, o);
+    return o;
+  }
+
+  // Shared status handling: true when data is ready; otherwise leaves the element in its loading or failed state.
+  function ready(el, chart) {
+    const g = dash.data('pacientes');
+    if (g.status === 'ok' && getRows()) { el.classList.remove('dash-skeleton'); return true; }
+    el.replaceChildren();
+    if (g.status === 'error') {
+      el.classList.remove('dash-skeleton');
+      const f = document.createElement('div'); f.className = 'cv-fail'; f.textContent = 'Falha ao carregar'; el.append(f);
+    } else if (chart) el.classList.add('dash-skeleton');
+    else el.textContent = '—';
+    return false;
+  }
+
+  function tip(el) {
+    const t = document.createElement('div'); t.className = 'cv-tip'; t.hidden = true; el.append(t);
+    return {
+      show(ev, title, lines) {
+        t.replaceChildren();
+        const h = document.createElement('div'); h.className = 'cv-tip-h'; h.textContent = title; t.append(h);
+        for (const [sw, label, val] of lines) {
+          const row = document.createElement('div'); row.className = 'cv-tip-r';
+          if (sw) { const s = document.createElement('span'); s.className = 'cv-sw'; s.style.background = sw; row.append(s); }
+          const l = document.createElement('span'); l.textContent = label;
+          const v = document.createElement('b'); v.textContent = val;
+          row.append(l, v); t.append(row);
+        }
+        t.hidden = false;
+        const b = el.getBoundingClientRect(), tw = t.offsetWidth, th = t.offsetHeight;
+        let x = ev.clientX - b.left + 14, y = ev.clientY - b.top + 14;
+        if (x + tw > b.width) x = ev.clientX - b.left - tw - 14;
+        if (y + th > b.height) y = ev.clientY - b.top - th - 14;
+        t.style.left = Math.max(0, x) + 'px'; t.style.top = Math.max(0, y) + 'px';
+      },
+      hide() { t.hidden = true; },
+    };
+  }
+
+  function textW(svg, strs) {
+    const g = svg.append('g');
+    let w = 0;
+    for (const s of strs) w = Math.max(w, g.append('text').text(s).node().getComputedTextLength());
+    g.remove();
+    return w;
+  }
+
+  const ageLabel = (a) => (a >= 90 ? '90+' : a + '–' + (a + 4));
+  const monthLabel = (m) => MES[+m.slice(5, 7) - 1] + '/' + m.slice(2, 4);
+  const monthLong = (m) => MES[+m.slice(5, 7) - 1] + '/' + m.slice(0, 4);
+  const muted = 'var(--cds-chart-muted)';
+
+  const total = () => (getRows() ? rows.reduce((t, r) => t + r.n, 0) : 0);
+  const pct0 = (v) => (v == null || !isFinite(v) ? '—' : loc.format('.0f')(v * 100) + '%');
+  window.CV = { COM, agg, total, pct0, params, ready, tip, textW, fInt, pct, rate, ageLabel, monthLabel, monthLong, muted, months: () => months };
+})();
+</script>
+
+<script>
+(() => {
+  // Filter controls: the HTML holds every choice; scripts only listen and reflect the current state.
+  const set = (o) => dash.setParams(o);
+  document.querySelectorAll('.cv-seg button[data-param]').forEach((b) => {
+    b.addEventListener('click', () => set({ [b.dataset.param]: b.dataset.value || null }));
+  });
+  document.querySelectorAll('#cv-idade-de').forEach((s) => s.addEventListener('change', () => set({ idade_de: +s.value })));
+  document.querySelectorAll('#cv-idade-ate').forEach((s) => s.addEventListener('change', () => set({ idade_ate: +s.value })));
+  document.querySelectorAll('#cv-unidade').forEach((s) => s.addEventListener('change', () => set({ unidade: s.value ? +s.value : null })));
+  document.querySelectorAll('.cv-chipbtn[data-comorb]').forEach((b) => {
+    b.addEventListener('click', () => {
+      const cur = CV.params().comorb, k = b.dataset.comorb;
+      set({ comorb: cur.includes(k) ? cur.filter((x) => x !== k) : [...cur, k] });
+    });
+  });
+  document.querySelectorAll('#cv-reset').forEach((b) => b.addEventListener('click', () => dash.resetParams()));
+
+  dash.onData(() => {
+    const p = CV.params();
+    const cur = { resultado: p.resultado, sexo: p.sexo || '', atendimento: p.atendimento || '' };
+    document.querySelectorAll('.cv-seg button[data-param]').forEach((b) => b.setAttribute('aria-pressed', String(cur[b.dataset.param] === b.dataset.value)));
+    document.querySelectorAll('#cv-idade-de').forEach((s) => { s.value = String(p.de); });
+    document.querySelectorAll('#cv-idade-ate').forEach((s) => { s.value = String(p.ate); });
+    document.querySelectorAll('#cv-unidade').forEach((s) => { s.value = p.unidade == null ? '' : String(p.unidade); });
+    document.querySelectorAll('.cv-chipbtn[data-comorb]').forEach((b) => b.setAttribute('aria-pressed', String(p.comorb.includes(b.dataset.comorb))));
+  });
+
+  dash.draw('chips', (el) => {
+    const p = CV.params();
+    const chips = [];
+    if (p.sexo) chips.push([p.sexo === 'F' ? 'Mulheres' : 'Homens', { sexo: null }]);
+    if (p.atendimento) chips.push([p.atendimento === 'H' ? 'Internados' : 'Ambulatoriais', { atendimento: null }]);
+    if (p.de > 0 || p.ate < 90) chips.push([(p.ate >= 90 ? p.de + '+ anos' : p.de + '–' + (p.ate + 4) + ' anos'), { idade_de: 0, idade_ate: 90 }]);
+    if (p.unidade != null) chips.push(['Unidade ' + p.unidade, { unidade: null }]);
+    for (const k of p.comorb) chips.push([CV.COM.find((c) => c[0] === k)[1], { comorb: p.comorb.filter((x) => x !== k) }]);
+    el.replaceChildren();
+    if (!chips.length) {
+      const s = document.createElement('span'); s.className = 'cv-active-empty';
+      s.textContent = p.resultado === 'pos' ? 'Mostrando pacientes com teste positivo.' : p.resultado === 'neg' ? 'Mostrando pacientes com teste negativo ou inconclusivo.' : 'Mostrando todos os pacientes.';
+      el.append(s);
+      return;
+    }
+    for (const [label, clear] of chips) {
+      const b = document.createElement('button'); b.type = 'button';
+      b.textContent = label + ' ×'; b.setAttribute('aria-label', 'Remover filtro ' + label);
+      b.addEventListener('click', () => dash.setParams(clear));
+      el.append(b);
+    }
+  });
+
+  // Swatches take the series colors, which follow the theme.
+  const sw = (name, color) => dash.draw(name, (el) => { el.textContent = ''; el.style.background = color(); });
+  sw('sw-f', () => dash.colors[0]);
+  sw('sw-m', () => dash.colors[1]);
+  sw('sw-sem', () => CV.muted);
+  sw('sw-com', () => dash.colors[0]);
+})();
+</script>
+
+<script>
+(() => {
+  const num = (name, fn) => dash.draw(name, (el) => { if (CV.ready(el)) el.textContent = fn(); });
+  num('tk-n', () => CV.fInt(CV.agg().n));
+  num('tk-letal', () => CV.pct(CV.rate(CV.agg().n, CV.agg().d)));
+  num('tk-total', () => CV.fInt(CV.total()));
+  num('tk-ini', () => { const m = CV.months(); return m.length ? CV.monthLong(m[0]) : '—'; });
+  num('tk-fim', () => { const m = CV.months(); return m.length ? CV.monthLong(m[m.length - 1]) : '—'; });
+  num('kpi-n', () => CV.fInt(CV.agg().n));
+  num('kpi-d', () => CV.fInt(CV.agg().d));
+  num('kpi-letal', () => CV.pct(CV.rate(CV.agg().n, CV.agg().d)));
+  num('kpi-hosp', () => CV.pct(CV.rate(CV.agg().n, CV.agg().h)));
+  num('kpi-uti', () => CV.pct(CV.rate(CV.agg().n, CV.agg().uti)));
+  num('kpi-int', () => CV.pct(CV.rate(CV.agg().n, CV.agg().int)));
+
+  // Each finding ignores its own dimension's filter so both sides of the comparison stay visible.
+  const r = (g) => CV.rate(g.n, g.d);
+  num('ins-60', () => CV.pct(r(CV.agg('idade').ge60)));
+  num('ins-40', () => CV.pct(r(CV.agg('idade').lt40)));
+  num('ins-razao', () => {
+    const a = CV.agg('idade'), x = r(a.ge60), y = r(a.lt40);
+    return x != null && y ? (x / y).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) : '—';
+  });
+  num('ins-c0', () => CV.pct(r(CV.agg('comorb').nc[0])));
+  num('ins-c3', () => CV.pct(r(CV.agg('comorb').nc[3])));
+  num('ins-m', () => CV.pct(r(CV.agg('sexo').sex.M)));
+  num('ins-f', () => CV.pct(r(CV.agg('sexo').sex.F)));
+  num('ins-pn1', () => CV.pct(r(CV.agg().pnY)));
+  num('ins-pn0', () => CV.pct(r(CV.agg().pnN)));
+})();
+</script>
+
+<script>
+(() => {
+  // Letalidade por faixa etária (10 anos), clicável para filtrar.
+  dash.draw('chart-idade', (el) => {
+    if (!CV.ready(el, true)) return;
+    const A = CV.agg('idade'), p = CV.params();
+    const data = A.a10.map((g, i) => ({ i, a: i * 10, label: i === 9 ? '90+' : i * 10 + '–' + (i * 10 + 9), n: g.n, d: g.d, r: CV.rate(g.n, g.d) }));
+    const W = el.clientWidth || 600, H = 260;
+    el.replaceChildren();
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Letalidade por faixa etária');
+    const maxR = d3.max(data, (d) => d.r || 0) || 0.01;
+    const y = d3.scaleLinear([0, maxR * 1.12], [0, 0]).nice();
+    const ticks = y.ticks(4);
+    const ml = CV.textW(svg, ticks.map((t) => CV.pct(t).replace(',0', ''))) + 10;
+    const m = { t: 18, r: 4, b: 28, l: ml };
+    y.range([H - m.b, m.t]);
+    const x = d3.scaleBand(data.map((d) => d.label), [m.l, W - m.r]).padding(0.22);
+    const g = svg.append('g');
+    g.selectAll('line.grid').data(ticks).join('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', (t) => y(t)).attr('y2', (t) => y(t)).style('stroke', 'var(--cds-chart-grid)');
+    g.selectAll('text.yt').data(ticks).join('text').attr('x', m.l - 6).attr('y', (t) => y(t)).attr('dy', '0.32em').attr('text-anchor', 'end').text((t) => CV.pct(t).replace(',0', ''));
+    const showLbl = x.bandwidth() > 30;
+    const inSel = (d) => d.a + 9 >= p.de && d.a <= p.ate + 4;
+    const filtered = p.de > 0 || p.ate < 90;
+    g.selectAll('rect.bar').data(data).join('rect').attr('x', (d) => x(d.label)).attr('width', x.bandwidth())
+      .attr('y', (d) => y(d.r || 0)).attr('height', (d) => Math.max(0, y(0) - y(d.r || 0))).attr('rx', 3)
+      .style('fill', (d) => (filtered && !inSel(d) ? CV.muted : dash.colors[0]));
+    if (showLbl) g.selectAll('text.vl').data(data.filter((d) => d.r != null)).join('text').attr('class', 'cv-strong').attr('x', (d) => x(d.label) + x.bandwidth() / 2).attr('y', (d) => y(d.r) - 5).attr('text-anchor', 'middle').text((d) => CV.pct0(d.r));
+    const step = Math.ceil(data.length / Math.max(1, Math.floor((W - m.l) / 46)));
+    g.selectAll('text.xt').data(data.filter((_, i) => i % step === 0)).join('text').attr('x', (d) => x(d.label) + x.bandwidth() / 2).attr('y', H - m.b + 16).attr('text-anchor', 'middle').text((d) => d.label);
+    g.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y(0)).attr('y2', y(0)).style('stroke', 'var(--cds-chart-axis)');
+    const t = CV.tip(el);
+    g.selectAll('rect.hit').data(data).join('rect').attr('class', 'cv-hit').attr('x', (d) => x(d.label) - (x.step() - x.bandwidth()) / 2).attr('width', x.step()).attr('y', m.t).attr('height', H - m.t - m.b).style('fill', 'transparent')
+      .on('mousemove', (ev, d) => t.show(ev, d.label + ' anos', [[dash.colors[0], 'Letalidade', CV.pct(d.r)], [null, 'Pacientes', CV.fInt(d.n)], [null, 'Óbitos', CV.fInt(d.d)]]))
+      .on('mouseleave', () => t.hide())
+      .on('click', (ev, d) => {
+        const de = d.a, ate = Math.min(90, d.a + 5);
+        dash.setParams(p.de === de && p.ate === (d.i === 9 ? 90 : ate) ? { idade_de: 0, idade_ate: 90 } : { idade_de: de, idade_ate: d.i === 9 ? 90 : ate });
+      });
+  });
+
+  // Pirâmide etária por sexo, faixas de 5 anos.
+  dash.draw('chart-piramide', (el) => {
+    if (!CV.ready(el, true)) return;
+    const A = CV.agg('sexo');
+    const bins = d3.range(0, 95, 5).reverse();
+    const data = bins.map((a) => { const g = A.a5.get(a) || { F: { n: 0, d: 0 }, M: { n: 0, d: 0 } }; return { a, F: g.F, M: g.M }; });
+    const W = el.clientWidth || 600, rowH = 16, m = { t: 4, b: 22 }, H = m.t + m.b + rowH * data.length;
+    el.replaceChildren();
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Pirâmide etária de pacientes e óbitos por sexo');
+    const mid = W / 2, gap = 24;
+    const max = d3.max(data, (d) => Math.max(d.F.n, d.M.n)) || 1;
+    const xs = d3.scaleLinear([0, max], [0, mid - gap - 4]).nice();
+    const y = d3.scaleBand(data.map((d) => d.a), [m.t, H - m.b]).padding(0.18);
+    const g = svg.append('g');
+    const p = CV.params();
+    const fade = (s) => (p.sexo && p.sexo !== s ? 0.25 : 1);
+    for (const [s, dir, color] of [['F', -1, dash.colors[0]], ['M', 1, dash.colors[1]]]) {
+      const x0 = mid + dir * gap;
+      g.selectAll('rect.n' + s).data(data).join('rect').attr('x', (d) => (dir < 0 ? x0 - xs(d[s].n) : x0)).attr('width', (d) => xs(d[s].n)).attr('y', (d) => y(d.a)).attr('height', y.bandwidth()).attr('rx', 2).style('fill', color).style('fill-opacity', 0.32 * fade(s));
+      g.selectAll('rect.d' + s).data(data).join('rect').attr('x', (d) => (dir < 0 ? x0 - xs(d[s].d) : x0)).attr('width', (d) => xs(d[s].d)).attr('y', (d) => y(d.a)).attr('height', y.bandwidth()).attr('rx', 2).style('fill', color).style('fill-opacity', fade(s));
+    }
+    g.selectAll('text.age').data(data.filter((d) => d.a % 10 === 0)).join('text').attr('x', mid).attr('y', (d) => y(d.a) + y.bandwidth() / 2).attr('dy', '0.32em').attr('text-anchor', 'middle').text((d) => (d.a >= 90 ? '90+' : d.a));
+    const ticks = xs.ticks(W < 500 ? 2 : 3).filter((t) => t > 0);
+    const fmt = (v) => (v >= 1000 ? CV.fInt(Math.round(v / 1000)) + ' mil' : CV.fInt(v));
+    for (const dir of [-1, 1]) {
+      g.selectAll('text.xt' + dir).data(ticks).join('text').attr('x', (t) => mid + dir * (gap + xs(t))).attr('y', H - 6).attr('text-anchor', 'middle').text(fmt);
+    }
+    const t = CV.tip(el);
+    g.selectAll('rect.hit').data(data.flatMap((d) => [{ ...d, s: 'F' }, { ...d, s: 'M' }])).join('rect').attr('class', 'cv-hit')
+      .attr('x', (d) => (d.s === 'F' ? 0 : mid)).attr('width', mid).attr('y', (d) => y(d.a) - (y.step() - y.bandwidth()) / 2).attr('height', y.step()).style('fill', 'transparent')
+      .on('mousemove', (ev, d) => {
+        const v = d[d.s];
+        t.show(ev, (d.s === 'F' ? 'Mulheres, ' : 'Homens, ') + CV.ageLabel(d.a) + ' anos', [[d.s === 'F' ? dash.colors[0] : dash.colors[1], 'Pacientes', CV.fInt(v.n)], [null, 'Óbitos', CV.fInt(v.d)], [null, 'Letalidade', CV.pct(CV.rate(v.n, v.d))]]);
+      })
+      .on('mouseleave', () => t.hide())
+      .on('click', (ev, d) => dash.setParams({ sexo: p.sexo === d.s ? null : d.s }));
+  });
+})();
+</script>
+
+<script>
+(() => {
+  // Dumbbell: letalidade com vs sem cada doença.
+  dash.draw('chart-comorb', (el) => {
+    if (!CV.ready(el, true)) return;
+    const A = CV.agg(), p = CV.params();
+    const data = CV.COM.map(([k, name], i) => ({ k, name, c: A.com[i].c, s: A.com[i].s, rc: CV.rate(A.com[i].c.n, A.com[i].c.d), rs: CV.rate(A.com[i].s.n, A.com[i].s.d) }))
+      .sort((a, b) => (b.rc ?? -1) - (a.rc ?? -1));
+    const W = el.clientWidth || 600, rowH = 32, m = { t: 6, b: 24, r: 50 };
+    const H = m.t + m.b + rowH * data.length;
+    el.replaceChildren();
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Letalidade com e sem cada doença preexistente');
+    const short = W < 480;
+    const lbl = (d) => (short ? d.name : d.name + ' (' + CV.fInt(d.c.n) + ')');
+    m.l = CV.textW(svg, data.map(lbl)) + 12;
+    const max = d3.max(data, (d) => Math.max(d.rc || 0, d.rs || 0)) || 0.01;
+    const x = d3.scaleLinear([0, max], [m.l, W - m.r]).nice();
+    const y = d3.scaleBand(data.map((d) => d.k), [m.t, H - m.b]).padding(0.3);
+    const g = svg.append('g');
+    const ticks = x.ticks(W < 480 ? 3 : 5);
+    g.selectAll('line.grid').data(ticks).join('line').attr('x1', (t) => x(t)).attr('x2', (t) => x(t)).attr('y1', m.t).attr('y2', H - m.b).style('stroke', 'var(--cds-chart-grid)');
+    g.selectAll('text.xt').data(ticks).join('text').attr('x', (t) => x(t)).attr('y', H - 6).attr('text-anchor', 'middle').text((t) => CV.pct(t).replace(',0', ''));
+    const cy = (d) => y(d.k) + y.bandwidth() / 2;
+    g.selectAll('text.lbl').data(data).join('text').attr('class', (d) => (p.comorb.includes(d.k) ? 'cv-strong' : null)).attr('x', m.l - 10).attr('y', cy).attr('dy', '0.32em').attr('text-anchor', 'end').text((d) => (p.comorb.includes(d.k) ? '✓ ' : '') + lbl(d));
+    const ok = data.filter((d) => d.rc != null && d.rs != null);
+    g.selectAll('line.lk').data(ok).join('line').attr('x1', (d) => x(d.rs)).attr('x2', (d) => x(d.rc)).attr('y1', cy).attr('y2', cy).style('stroke', 'var(--cds-chart-axis)').style('stroke-width', 2);
+    g.selectAll('circle.s').data(data.filter((d) => d.rs != null)).join('circle').attr('cx', (d) => x(d.rs)).attr('cy', cy).attr('r', 5).style('fill', CV.muted).style('stroke', 'var(--color-panel)').style('stroke-width', 2);
+    g.selectAll('circle.c').data(data.filter((d) => d.rc != null)).join('circle').attr('cx', (d) => x(d.rc)).attr('cy', cy).attr('r', 6).style('fill', dash.colors[0]).style('stroke', 'var(--color-panel)').style('stroke-width', 2);
+    g.selectAll('text.v').data(data.filter((d) => d.rc != null)).join('text').attr('class', 'cv-strong').attr('x', (d) => Math.max(x(d.rc), d.rs != null ? x(d.rs) : 0) + 10).attr('y', cy).attr('dy', '0.32em').text((d) => CV.pct(d.rc));
+    const t = CV.tip(el);
+    g.selectAll('rect.hit').data(data).join('rect').attr('class', 'cv-hit').attr('x', 0).attr('width', W).attr('y', (d) => y(d.k) - (y.step() - y.bandwidth()) / 2).attr('height', y.step()).style('fill', 'transparent')
+      .on('mousemove', (ev, d) => t.show(ev, d.name, [[dash.colors[0], 'Com a doença', CV.pct(d.rc)], [CV.muted, 'Sem a doença', CV.pct(d.rs)], [null, 'Pacientes com a doença', CV.fInt(d.c.n)], [null, 'Prevalência', CV.pct(CV.rate(d.c.n + d.s.n, d.c.n))]]))
+      .on('mouseleave', () => t.hide())
+      .on('click', (ev, d) => dash.setParams({ comorb: p.comorb.includes(d.k) ? p.comorb.filter((k) => k !== d.k) : [...p.comorb, d.k] }));
+  });
+
+  // Letalidade por número de doenças preexistentes.
+  dash.draw('chart-ncom', (el) => {
+    if (!CV.ready(el, true)) return;
+    const A = CV.agg('comorb');
+    const names = ['Nenhuma', '1', '2', '3 ou mais'];
+    const data = A.nc.map((g, i) => ({ label: names[i], n: g.n, d: g.d, r: CV.rate(g.n, g.d) }));
+    const W = el.clientWidth || 600, H = 260, m = { t: 22, r: 4, b: 28 };
+    el.replaceChildren();
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Letalidade pelo número de doenças preexistentes');
+    const y = d3.scaleLinear([0, (d3.max(data, (d) => d.r || 0) || 0.01) * 1.1], [H - m.b, m.t]).nice();
+    const ticks = y.ticks(4);
+    m.l = CV.textW(svg, ticks.map((t) => CV.pct(t).replace(',0', ''))) + 10;
+    const x = d3.scaleBand(data.map((d) => d.label), [m.l, W - m.r]).padding(0.35);
+    const bw = Math.min(64, x.bandwidth()), off = (x.bandwidth() - bw) / 2;
+    const g = svg.append('g');
+    g.selectAll('line.grid').data(ticks).join('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', (t) => y(t)).attr('y2', (t) => y(t)).style('stroke', 'var(--cds-chart-grid)');
+    g.selectAll('text.yt').data(ticks).join('text').attr('x', m.l - 6).attr('y', (t) => y(t)).attr('dy', '0.32em').attr('text-anchor', 'end').text((t) => CV.pct(t).replace(',0', ''));
+    g.selectAll('rect.bar').data(data).join('rect').attr('x', (d) => x(d.label) + off).attr('width', bw).attr('y', (d) => y(d.r || 0)).attr('height', (d) => Math.max(0, y(0) - y(d.r || 0))).attr('rx', 3).style('fill', dash.colors[0]);
+    g.selectAll('text.vl').data(data.filter((d) => d.r != null)).join('text').attr('class', 'cv-strong').attr('x', (d) => x(d.label) + x.bandwidth() / 2).attr('y', (d) => y(d.r) - 6).attr('text-anchor', 'middle').text((d) => CV.pct(d.r));
+    g.selectAll('text.xt').data(data).join('text').attr('x', (d) => x(d.label) + x.bandwidth() / 2).attr('y', H - m.b + 16).attr('text-anchor', 'middle').text((d) => d.label);
+    g.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y(0)).attr('y2', y(0)).style('stroke', 'var(--cds-chart-axis)');
+    const t = CV.tip(el);
+    g.selectAll('rect.hit').data(data).join('rect').attr('x', (d) => x(d.label)).attr('width', x.bandwidth()).attr('y', m.t).attr('height', H - m.t - m.b).style('fill', 'transparent')
+      .on('mousemove', (ev, d) => t.show(ev, d.label === 'Nenhuma' ? 'Nenhuma doença preexistente' : d.label + (d.label === '1' ? ' doença' : ' doenças'), [[dash.colors[0], 'Letalidade', CV.pct(d.r)], [null, 'Pacientes', CV.fInt(d.n)], [null, 'Óbitos', CV.fInt(d.d)]]))
+      .on('mouseleave', () => t.hide());
+  });
+})();
+</script>
+
+<script>
+(() => {
+  // Cascata de gravidade: barras horizontais a partir da mesma borda.
+  dash.draw('chart-gravidade', (el) => {
+    if (!CV.ready(el, true)) return;
+    const A = CV.agg();
+    const data = [['Pacientes', A.n], ['Internados', A.h], ['Com pneumonia', A.pn], ['Em UTI', A.uti], ['Intubados', A.int], ['Óbitos', A.d]].map(([label, v]) => ({ label, v, s: CV.rate(A.n, v) }));
+    const W = el.clientWidth || 600, rowH = 34, m = { t: 2, b: 2 };
+    const H = m.t + m.b + rowH * data.length;
+    el.replaceChildren();
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Cascata de gravidade');
+    const lw = CV.textW(svg, data.map((d) => d.label)) + 12;
+    const vw = CV.textW(svg, data.map((d) => CV.fInt(d.v) + ' · ' + CV.pct(d.s))) + 10;
+    const x = d3.scaleLinear([0, A.n || 1], [lw, Math.max(lw + 20, W - vw)]);
+    const y = d3.scaleBand(data.map((d) => d.label), [m.t, H - m.b]).padding(0.28);
+    const g = svg.append('g');
+    g.selectAll('rect.bg').data(data).join('rect').attr('x', lw).attr('width', x(A.n || 1) - lw).attr('y', (d) => y(d.label)).attr('height', y.bandwidth()).attr('rx', 3).style('fill', 'var(--cds-chart-grid)');
+    g.selectAll('rect.bar').data(data).join('rect').attr('x', lw).attr('width', (d) => Math.max(0, x(d.v) - lw)).attr('y', (d) => y(d.label)).attr('height', y.bandwidth()).attr('rx', 3)
+      .style('fill', (d) => (d.label === 'Óbitos' ? 'var(--cds-chart-status-critical)' : dash.colors[0]));
+    g.selectAll('text.l').data(data).join('text').attr('x', lw - 10).attr('y', (d) => y(d.label) + y.bandwidth() / 2).attr('dy', '0.32em').attr('text-anchor', 'end').text((d) => d.label);
+    g.selectAll('text.v').data(data).join('text').attr('class', 'cv-strong').attr('x', (d) => x(d.v) + 8).attr('y', (d) => y(d.label) + y.bandwidth() / 2).attr('dy', '0.32em').text((d) => CV.fInt(d.v) + ' · ' + CV.pct(d.s));
+  });
+
+  // Óbitos por mês.
+  dash.draw('chart-mes', (el) => {
+    if (!CV.ready(el, true)) return;
+    const A = CV.agg(), months = CV.months();
+    const data = months.map((mo) => ({ mo, v: A.mes.get(mo) || 0, odd: mo < '2020-03' }));
+    const W = el.clientWidth || 600, H = 260, m = { t: 12, r: 4, b: 28 };
+    el.replaceChildren();
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Óbitos por mês');
+    const y = d3.scaleLinear([0, d3.max(data, (d) => d.v) || 1], [H - m.b, m.t]).nice();
+    const ticks = y.ticks(4);
+    const fy = (v) => (v >= 1000 ? CV.fInt(v / 1000) + ' mil' : CV.fInt(v));
+    m.l = CV.textW(svg, ticks.map(fy)) + 10;
+    const x = d3.scaleBand(data.map((d) => d.mo), [m.l, W - m.r]).padding(0.2);
+    const g = svg.append('g');
+    g.selectAll('line.grid').data(ticks).join('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', (t) => y(t)).attr('y2', (t) => y(t)).style('stroke', 'var(--cds-chart-grid)');
+    g.selectAll('text.yt').data(ticks).join('text').attr('x', m.l - 6).attr('y', (t) => y(t)).attr('dy', '0.32em').attr('text-anchor', 'end').text(fy);
+    g.selectAll('rect.bar').data(data).join('rect').attr('x', (d) => x(d.mo)).attr('width', x.bandwidth()).attr('y', (d) => y(d.v)).attr('height', (d) => Math.max(0, y(0) - y(d.v))).attr('rx', 2)
+      .style('fill', (d) => (d.odd ? CV.muted : dash.colors[0]));
+    const step = Math.ceil(data.length / Math.max(1, Math.floor((W - m.l) / 48)));
+    g.selectAll('text.xt').data(data.filter((_, i) => i % step === 0)).join('text').attr('x', (d) => x(d.mo) + x.bandwidth() / 2).attr('y', H - m.b + 16).attr('text-anchor', 'middle').text((d) => CV.monthLabel(d.mo));
+    g.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y(0)).attr('y2', y(0)).style('stroke', 'var(--cds-chart-axis)');
+    const t = CV.tip(el);
+    g.selectAll('rect.hit').data(data).join('rect').attr('x', (d) => x(d.mo) - (x.step() - x.bandwidth()) / 2).attr('width', x.step()).attr('y', m.t).attr('height', H - m.t - m.b).style('fill', 'transparent')
+      .on('mousemove', (ev, d) => t.show(ev, CV.monthLong(d.mo), [[d.odd ? CV.muted : dash.colors[0], 'Óbitos', CV.fInt(d.v)], [null, 'Parcela dos óbitos', CV.pct(CV.rate(A.d, d.v))]]))
+      .on('mouseleave', () => t.hide());
+  });
+
+  // Dispersão das unidades médicas.
+  dash.draw('chart-unidades', (el) => {
+    if (!CV.ready(el, true)) return;
+    const A = CV.agg('unidade'), p = CV.params();
+    const data = [...A.un.entries()].map(([u, g]) => ({ u, n: g.n, d: g.d, r: CV.rate(g.n, g.d) })).filter((d) => d.n > 0).sort((a, b) => b.n - a.n);
+    const W = el.clientWidth || 800, H = 300, m = { t: 18, r: 24, b: 34 };
+    el.replaceChildren();
+    if (!data.length) return;
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Volume de pacientes e letalidade por unidade médica');
+    const y = d3.scaleLinear([0, (d3.max(data, (d) => d.r) || 0.01) * 1.1], [H - m.b, m.t]).nice();
+    const yt = y.ticks(4);
+    m.l = CV.textW(svg, yt.map((t) => CV.pct(t).replace(',0', ''))) + 10;
+    const x = d3.scaleLog([Math.max(1, d3.min(data, (d) => d.n) / 1.6), d3.max(data, (d) => d.n) * 1.6], [m.l + 10, W - m.r]);
+    const rr = d3.scaleSqrt([0, d3.max(data, (d) => d.n)], [4, W < 500 ? 18 : 28]);
+    const g = svg.append('g');
+    g.selectAll('line.grid').data(yt).join('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', (t) => y(t)).attr('y2', (t) => y(t)).style('stroke', 'var(--cds-chart-grid)');
+    g.selectAll('text.yt').data(yt).join('text').attr('x', m.l - 6).attr('y', (t) => y(t)).attr('dy', '0.32em').attr('text-anchor', 'end').text((t) => CV.pct(t).replace(',0', ''));
+    const xt = [10, 100, 1000, 10000, 100000, 1000000].filter((v) => v >= x.domain()[0] && v <= x.domain()[1]);
+    g.selectAll('text.xt').data(xt).join('text').attr('x', (v) => x(v)).attr('y', H - m.b + 18).attr('text-anchor', 'middle').text((v) => (v >= 1000 ? CV.fInt(v / 1000) + ' mil' : CV.fInt(v)));
+    g.append('text').attr('x', W - m.r).attr('y', H - 2).attr('text-anchor', 'end').text('pacientes atendidos →');
+    g.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y(0)).attr('y2', y(0)).style('stroke', 'var(--cds-chart-axis)');
+    const tot = CV.rate(A.n, A.d);
+    if (tot != null) {
+      g.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y(tot)).attr('y2', y(tot)).style('stroke', 'var(--cds-chart-reference)').style('stroke-dasharray', '4 4');
+      g.append('text').attr('x', W - m.r).attr('y', y(tot) - 6).attr('text-anchor', 'end').text('média ' + CV.pct(tot));
+    }
+    const sel = p.unidade;
+    const dots = g.selectAll('circle.u').data(data).join('circle').attr('class', 'cv-hit').attr('cx', (d) => x(d.n)).attr('cy', (d) => y(d.r)).attr('r', (d) => rr(d.n))
+      .style('fill', dash.colors[0]).style('fill-opacity', (d) => (sel == null || sel === d.u ? 0.72 : 0.18))
+      .style('stroke', (d) => (sel === d.u ? 'var(--color-fg)' : 'var(--color-panel)')).style('stroke-width', 2);
+    const labeled = data.filter((d, i) => i < 4 || d.u === sel);
+    const lw = CV.textW(svg, ['Unidade 00']);
+    const right = (d) => x(d.n) + rr(d.n) + 4 + lw <= W;
+    g.selectAll('text.ul').data(labeled).join('text').attr('class', 'cv-strong').attr('x', (d) => (right(d) ? x(d.n) + rr(d.n) + 4 : x(d.n) - rr(d.n) - 4)).attr('text-anchor', (d) => (right(d) ? 'start' : 'end')).attr('y', (d) => y(d.r)).attr('dy', '0.32em').text((d) => 'Unidade ' + d.u);
+    const t = CV.tip(el);
+    dots.on('mousemove', (ev, d) => t.show(ev, 'Unidade ' + d.u, [[dash.colors[0], 'Letalidade', CV.pct(d.r)], [null, 'Pacientes', CV.fInt(d.n)], [null, 'Óbitos', CV.fInt(d.d)], [null, 'Parcela dos pacientes', CV.pct(CV.rate(A.n, d.n))]]))
+      .on('mouseleave', () => t.hide())
+      .on('click', (ev, d) => dash.setParams({ unidade: sel === d.u ? null : d.u }));
+  });
+})();
+</script>
